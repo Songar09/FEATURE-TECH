@@ -6,6 +6,7 @@ import passport from './config/passport.js';
 import { notFound, errorHandler } from './middleware/error.js';
 import authRoutes from './routes/auth.routes.js';
 import userRoutes from './routes/users.routes.js';
+import clientRoutes from './routes/clients.routes.js';
 import productRoutes from './routes/products.routes.js';
 import cartRoutes from './routes/cart.routes.js';
 import orderRoutes from './routes/orders.routes.js';
@@ -25,6 +26,7 @@ app.get('/api/health', (_req, res) => res.json({ ok: true, servicio: 'FEATURE TE
 
 app.use('/api/auth', authRoutes);         // Público + Google OAuth
 app.use('/api/users', userRoutes);        // Administrador
+app.use('/api/clients', clientRoutes);    // Administrador / Empleado
 app.use('/api/products', productRoutes);  // Público (lectura) / Admin / Empleado (stock)
 app.use('/api/cart', cartRoutes);         // Cliente
 app.use('/api/orders', orderRoutes);      // Cliente / Empleado / Administrador

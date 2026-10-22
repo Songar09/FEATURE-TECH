@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom';
-import { LayoutDashboard, Boxes, ClipboardList, LifeBuoy, Users } from 'lucide-react';
+import { LayoutDashboard, Boxes, ClipboardList, LifeBuoy, Users, Contact } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const ITEMS = [
@@ -7,6 +7,7 @@ const ITEMS = [
   { to: '/panel/inventario', label: 'Inventario', Icon: Boxes, roles: ['Administrador', 'Empleado'] },
   { to: '/panel/pedidos', label: 'Pedidos', Icon: ClipboardList, roles: ['Administrador', 'Empleado'] },
   { to: '/panel/soporte', label: 'Soporte', Icon: LifeBuoy, roles: ['Administrador', 'Empleado'] },
+  { to: '/panel/clientes', label: 'Clientes', Icon: Contact, roles: ['Administrador', 'Empleado'] },
   { to: '/panel/usuarios', label: 'Usuarios', Icon: Users, roles: ['Administrador'] },
 ];
 

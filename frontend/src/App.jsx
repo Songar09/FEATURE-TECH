@@ -19,6 +19,7 @@ import Inventory from './pages/panel/Inventory';
 import OrdersAdmin from './pages/panel/OrdersAdmin';
 import SupportAdmin from './pages/panel/SupportAdmin';
 import UsersAdmin from './pages/panel/UsersAdmin';
+import ClientsAdmin from './pages/panel/ClientsAdmin';
 
 const STAFF = ['Administrador', 'Empleado'];
 
@@ -46,6 +47,7 @@ export default function App() {
             <Route path="inventario" element={<Inventory />} />
             <Route path="pedidos" element={<OrdersAdmin />} />
             <Route path="soporte" element={<SupportAdmin />} />
+            <Route path="clientes" element={<ClientsAdmin />} />
             <Route path="usuarios" element={<ProtectedRoute roles={['Administrador']}><UsersAdmin /></ProtectedRoute>} />
           </Route>
 
