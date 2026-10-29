@@ -138,3 +138,14 @@ POST   /api/chatbot  { mensaje }
 ## 7. Chatbot "Tecky"
 
 Widget flotante en todas las páginas, conectado a `POST /api/chatbot`. Reconoce intenciones por palabras clave: saludo, **envíos**, **estado de pedidos** (si hay sesión consulta los pedidos reales del usuario, también "pedido #12"), pagos, garantías y devoluciones, soporte, categorías, y en último caso busca productos del catálogo por nombre, marca o categoría. Está aislado en `services/chatbot.service.js` para poder reemplazarlo por un modelo de IA más adelante sin tocar el frontend.
+
+## 8. Publicación gratuita en la nube
+
+Combinación sugerida: **Neon** (PostgreSQL), **Render** (backend) y **Vercel** (frontend).
+
+1. **Neon**: cree un proyecto y copie la cadena de conexión. Cargue el esquema con `psql "<cadena>" -f database/schema.cloud.sql`, y luego ejecute desde `backend`, con `DATABASE_URL` apuntando a Neon, `npm run seed` y `npm run seed:empleados`.
+2. **Render** (Web Service, carpeta raíz `backend`, build `npm install`, start `npm start`): defina `DATABASE_URL`, `JWT_SECRET` (cadena larga aleatoria), `FRONTEND_URL` (URL de Vercel, sin `/` final) y `NODE_ENV=production`.
+3. **Vercel** (carpeta raíz `frontend`, framework Vite): defina `VITE_API_URL` con la URL del backend en Render.
+4. Para Google OAuth, agregue la URL de Vercel como origen autorizado y `https://<backend>/api/auth/google/callback` como redirección, y ponga `GOOGLE_CALLBACK_URL` con esa misma URL en Render.
+
+Nunca suba claves al repositorio: se escriben solo en los paneles de cada servicio.
