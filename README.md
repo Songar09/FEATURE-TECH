@@ -63,21 +63,17 @@ Requisitos: Node.js 18 o superior y PostgreSQL 14 o superior.
 # 1) Base de datos (crea "feature_tech" y todas las tablas)
 psql -U postgres -f database/schema.sql
 
-# 2) Backend
-cd backend
-cp .env.example .env        # ajuste DATABASE_URL y JWT_SECRET
-npm install
-npm run seed                # crea el administrador principal + productos de ejemplo
-npm run dev                 # http://localhost:4000
+# 2) Configuración (una sola vez). Ajuste DATABASE_URL y JWT_SECRET en backend/.env
+copy backend.env.example backend.env
+copy frontend.env.example frontend.env
+npm run instalar            # instala dependencias de la raíz, backend y frontend
+cd backend && npm run seed && npm run seed:empleados && cd ..
 
-# 3) Frontend (en otra terminal)
-cd frontend
-cp .env.example .env
-npm install
-npm run dev                 # http://localhost:5173
+# 3) Correr todo (desde la carpeta FEATURE-TECH, en la terminal de VS Code)
+npm run dev                 # backend http://localhost:4000 y frontend http://localhost:5173
 ```
 
-En Windows use `copy` en lugar de `cp`.
+Para detener todo, presione Ctrl+C en la terminal.
 
 **Administrador inicial:** `robinson.garcia@cun.edu.co`. La contraseña sale de `SEED_ADMIN_PASSWORD` en `backend/.env` (en `.env.example` viene la solicitada) y se guarda encriptada con bcrypt. El seed es idempotente: si el administrador ya existe no cambia su contraseña. Cambie la contraseña después del primer ingreso, y no suba el archivo `.env` a ningún repositorio.
 
