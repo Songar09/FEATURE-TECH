@@ -64,8 +64,8 @@ Requisitos: Node.js 18 o superior y PostgreSQL 14 o superior.
 psql -U postgres -f database/schema.sql
 
 # 2) Configuración (una sola vez). Ajuste DATABASE_URL y JWT_SECRET en backend/.env
-copy backend.env.example backend.env
-copy frontend.env.example frontend.env
+copy backend/.env.example backend/.env
+copy frontend/.env.example frontend/.env
 npm run instalar            # instala dependencias de la raíz, backend y frontend
 cd backend && npm run seed && npm run seed:empleados && cd ..
 
