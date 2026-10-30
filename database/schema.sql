@@ -69,6 +69,12 @@ CREATE TABLE Pedido (
     total           NUMERIC(12,2) NOT NULL CHECK (total >= 0),
     estado          estado_pedido NOT NULL DEFAULT 'pendiente',
     direccion_envio TEXT NOT NULL,
+    nombre_contacto   VARCHAR(120),
+    telefono_contacto VARCHAR(30),
+    ciudad_envio      VARCHAR(80),
+    metodo_pago       VARCHAR(30),
+    referencia_pago   VARCHAR(60),
+    tarjeta_ultimos4  CHAR(4),
     fecha_pedido    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     fecha_actualizacion TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

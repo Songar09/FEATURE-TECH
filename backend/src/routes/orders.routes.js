@@ -3,9 +3,12 @@ import { query, withTransaction } from '../config/db.js';
 import { authenticate, authorize } from '../middleware/auth.js';
 import { asyncHandler, HttpError, ROLES, toInt } from '../utils/http.js';
 import { getCartId } from './cart.routes.js';
+import { procesarPago } from '../services/payments.service.js';
 
 const router = Router();
 const STAFF = [ROLES.ADMIN, ROLES.EMPLEADO];
+const ENVIO_GRATIS = 300000;
+const COSTO_ENVIO = 15000;
 const ESTADOS = ['pendiente', 'pagado', 'enviado', 'entregado', 'cancelado'];
 
 router.use(authenticate);
@@ -26,14 +29,19 @@ async function orderWithItems(id) {
 }
 
 /**
- * POST /api/orders { direccion_envio } (Cliente)
+ * POST /api/orders { nombre, telefono, ciudad, direccion_envio, metodo_pago, tarjeta?, telefono_nequi? } (Cliente)
  * Convierte el carrito en pedido. Dentro de una transacción:
  *  1. bloquea las filas de producto (FOR UPDATE) para evitar sobreventa,
  *  2. valida stock y estado activo de cada producto,
- *  3. descuenta inventario, crea Pedido + DetallePedido y vacía el carrito.
+ *  3. cobra con la pasarela (si rechaza, se revierte todo y el stock no cambia),
+ *  4. descuenta inventario, crea Pedido (pagado) + DetallePedido y vacía el carrito.
  */
 router.post('/', authorize(ROLES.CLIENTE), asyncHandler(async (req, res) => {
+  const { nombre, telefono, ciudad, metodo_pago, tarjeta, telefono_nequi } = req.body;
   const direccion = req.body.direccion_envio?.trim();
+  if (!nombre?.trim()) throw new HttpError(400, 'El nombre de quien recibe es obligatorio');
+  if (!/^\d{7,15}$/.test(String(telefono || '').replace(/[\s+-]/g, ''))) throw new HttpError(400, 'Teléfono de contacto inválido');
+  if (!ciudad?.trim()) throw new HttpError(400, 'La ciudad es obligatoria');
   if (!direccion) throw new HttpError(400, 'La dirección de envío es obligatoria');
 
   const pedidoId = await withTransaction(async (client) => {
@@ -52,10 +60,15 @@ router.post('/', authorize(ROLES.CLIENTE), asyncHandler(async (req, res) => {
       .map((i) => ({ id_producto: i.id_producto, nombre: i.nombre, solicitado: i.cantidad, disponible: i.activo ? i.stock : 0 }));
     if (sinStock.length) throw new HttpError(409, 'Stock insuficiente para algunos productos', sinStock);
 
-    const total = items.reduce((s, i) => s + i.cantidad * i.precio, 0);
+    const subtotal = items.reduce((s, i) => s + i.cantidad * i.precio, 0);
+    const total = subtotal + (subtotal >= ENVIO_GRATIS ? 0 : COSTO_ENVIO);
+    const pago = await procesarPago({ metodo: metodo_pago, monto: total, tarjeta, telefono: telefono_nequi });
     const { rows: [pedido] } = await client.query(
-      'INSERT INTO Pedido (id_usuario, total, direccion_envio) VALUES ($1, $2, $3) RETURNING id_pedido',
-      [req.user.id_usuario, total, direccion]
+      `INSERT INTO Pedido (id_usuario, total, estado, direccion_envio, nombre_contacto, telefono_contacto,
+                           ciudad_envio, metodo_pago, referencia_pago, tarjeta_ultimos4)
+       VALUES ($1, $2, 'pagado', $3, $4, $5, $6, $7, $8, $9) RETURNING id_pedido`,
+      [req.user.id_usuario, total, direccion, nombre.trim(), String(telefono).trim(), ciudad.trim(),
+       metodo_pago, pago.referencia, pago.ultimos4]
     );
     for (const i of items) {
       await client.query(

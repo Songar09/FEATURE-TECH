@@ -78,7 +78,11 @@ export default function OrdersAdmin() {
             <div className="grid gap-2 text-sm sm:grid-cols-2">
               <p><span className="text-slate-400">Cliente:</span> {detail.cliente}</p>
               <p><span className="text-slate-400">Correo:</span> {detail.correo_cliente}</p>
-              <p className="sm:col-span-2"><span className="text-slate-400">Dirección:</span> {detail.direccion_envio}</p>
+              <p><span className="text-slate-400">Recibe:</span> {detail.nombre_contacto || '—'}</p>
+              <p><span className="text-slate-400">Teléfono:</span> {detail.telefono_contacto || '—'}</p>
+              <p className="sm:col-span-2"><span className="text-slate-400">Dirección:</span> {detail.direccion_envio}{detail.ciudad_envio ? `, ${detail.ciudad_envio}` : ''}</p>
+              <p><span className="text-slate-400">Pago:</span> {detail.metodo_pago ? `${detail.metodo_pago}${detail.tarjeta_ultimos4 ? ` •••• ${detail.tarjeta_ultimos4}` : ''}` : '—'}</p>
+              <p><span className="text-slate-400">Referencia:</span> <span className="font-mono text-xs">{detail.referencia_pago || '—'}</span></p>
             </div>
             <div className="divide-y divide-white/5 rounded-xl bg-ink-800">
               {detail.items.map((i) => (

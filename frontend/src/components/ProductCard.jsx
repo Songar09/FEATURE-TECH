@@ -1,6 +1,9 @@
+import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Eye } from 'lucide-react';
 import StockBadge from './StockBadge';
+import ProductModal from './ProductModal';
 import { money } from '../lib/format';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -12,11 +15,16 @@ export default function ProductCard({ product, index = 0 }) {
   const notify = useToast();
   const navigate = useNavigate();
   const agotado = product.stock <= 0;
+  const [open, setOpen] = useState(false);
 
   const handleAdd = () => {
     if (!user) { notify('Inicia sesión para comprar', 'info'); return navigate('/login'); }
     if (user.rol !== 'Cliente') return notify('Solo los clientes pueden usar el carrito', 'info');
-    add(product);
+    setOpen(true);
+  };
+
+  const confirmAdd = async (p, cantidad) => {
+    if (await add(p, cantidad)) setOpen(false);
   };
 
   return (
@@ -59,6 +67,8 @@ export default function ProductCard({ product, index = 0 }) {
           </button>
         </div>
       </div>
+      {/* Portal: el hover con transform del artículo rompería el posicionamiento fijo del modal */}
+      {createPortal(<ProductModal product={open ? product : null} onClose={() => setOpen(false)} onConfirm={confirmAdd} />, document.body)}
     </article>
   );
 }
