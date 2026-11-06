@@ -8,7 +8,9 @@
     "dev": "node --watch src/server.js",
     "start": "node src/server.js",
     "seed": "node src/scripts/seed.js",
-    "seed:empleados": "node src/scripts/seed-employees.js"
+    "seed:empleados": "node src/scripts/seed-employees.js",
+    "setup-db": "node src/scripts/setup-db.js",
+    "start:render": "node src/scripts/setup-db.js && node src/scripts/seed.js && node src/server.js"
   },
   "engines": { "node": ">=18" },
   "dependencies": {

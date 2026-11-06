@@ -135,13 +135,16 @@ POST   /api/chatbot  { mensaje }
 
 Widget flotante en todas las páginas, conectado a `POST /api/chatbot`. Reconoce intenciones por palabras clave: saludo, **envíos**, **estado de pedidos** (si hay sesión consulta los pedidos reales del usuario, también "pedido #12"), pagos, garantías y devoluciones, soporte, categorías, y en último caso busca productos del catálogo por nombre, marca o categoría. Está aislado en `services/chatbot.service.js` para poder reemplazarlo por un modelo de IA más adelante sin tocar el frontend.
 
-## 8. Publicación gratuita en la nube
+## 8. Publicación gratuita en la nube (Render, un clic)
 
-Combinación sugerida: **Neon** (PostgreSQL), **Render** (backend) y **Vercel** (frontend).
+El archivo `render.yaml` crea todo en Render: una base PostgreSQL gratuita y un solo servicio web que sirve la tienda y el API en el mismo dominio. Al arrancar, el servidor crea las tablas si la base está vacía, aplica las migraciones y carga el administrador y los productos de ejemplo (no borra datos existentes).
 
-1. **Neon**: cree un proyecto y copie la cadena de conexión. Cargue el esquema con `psql "<cadena>" -f database/schema.cloud.sql`, y luego ejecute desde `backend`, con `DATABASE_URL` apuntando a Neon, `npm run seed` y `npm run seed:empleados`.
-2. **Render** (Web Service, carpeta raíz `backend`, build `npm install`, start `npm start`): defina `DATABASE_URL`, `JWT_SECRET` (cadena larga aleatoria), `FRONTEND_URL` (URL de Vercel, sin `/` final) y `NODE_ENV=production`.
-3. **Vercel** (carpeta raíz `frontend`, framework Vite): defina `VITE_API_URL` con la URL del backend en Render.
-4. Para Google OAuth, agregue la URL de Vercel como origen autorizado y `https://<backend>/api/auth/google/callback` como redirección, y ponga `GOOGLE_CALLBACK_URL` con esa misma URL en Render.
+1. Abra https://render.com/deploy?repo=https://github.com/Songar09/feature-tech e ingrese con su cuenta de GitHub.
+2. Render pide `SEED_ADMIN_PASSWORD`: escriba la contraseña que tendrá el administrador `robinson.garcia@cun.edu.co`. `JWT_SECRET` se genera solo.
+3. Pulse **Deploy Blueprint**. En unos minutos el sitio queda en `https://feature-tech-XXXX.onrender.com` (la URL aparece en el servicio `feature-tech`).
 
-Nunca suba claves al repositorio: se escriben solo en los paneles de cada servicio.
+Notas del plan gratuito: el servicio se duerme tras 15 minutos sin visitas (la primera carga tarda ~1 minuto) y la base gratuita de Render vence a los 30 días; para algo permanente use un plan pago o una base en Neon (ponga su cadena en `DATABASE_URL`).
+
+Para Google OAuth, agregue en Render `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` y `GOOGLE_CALLBACK_URL=https://<su-url>/api/auth/google/callback`, y registre esa misma URL de redirección en Google Cloud.
+
+Nunca suba claves al repositorio: se escriben solo en el panel de Render.
