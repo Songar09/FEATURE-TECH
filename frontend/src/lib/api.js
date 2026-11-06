@@ -1,4 +1,6 @@
-export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+// En producción, si no se define VITE_API_URL, el API vive en el mismo dominio que la página.
+export const API_URL =
+  import.meta.env.VITE_API_URL || (import.meta.env.PROD ? window.location.origin : 'http://localhost:4000');
 const TOKEN_KEY = 'ft_token';
 
 export const tokenStore = {

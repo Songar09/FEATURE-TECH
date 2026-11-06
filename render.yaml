@@ -1,18 +1,37 @@
+# Blueprint de Render: crea la base PostgreSQL y un solo servicio web que
+# sirve el API (Express) y la tienda (React compilada) en el mismo dominio.
+# Uso: https://render.com/deploy?repo=https://github.com/Songar09/feature-tech
+databases:
+  - name: feature-tech-db
+    plan: free
+    databaseName: feature_tech
+    user: feature_tech
+
 services:
   - type: web
-    name: feature-tech-api
+    name: feature-tech
     runtime: node
     plan: free
-    rootDir: backend
-    buildCommand: npm install
-    startCommand: npm start
+    buildCommand: npm --prefix backend install && npm --prefix frontend install --include=dev && npm --prefix frontend run build
+    startCommand: npm --prefix backend run start:render
     healthCheckPath: /api/health
     envVars:
+      - key: NODE_VERSION
+        value: "20"
       - key: NODE_ENV
         value: production
-      - key: FRONTEND_URL
-        value: https://temporal.com
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: feature-tech-db
+          property: connectionString
       - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 8h
+      - key: SEED_ADMIN_NAME
+        value: Robinson García
+      - key: SEED_ADMIN_EMAIL
+        value: robinson.garcia@cun.edu.co
+      # Contraseña del administrador: Render la pide al crear el Blueprint (no va en el repo)
+      - key: SEED_ADMIN_PASSWORD
         sync: false
